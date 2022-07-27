@@ -4,6 +4,8 @@ const mongoose = require("mongoose");
 const expressSanitizer = require("express-sanitizer");
 const sanitize = require("mongo-sanitize");
 const path = require("path");
+const swaggerUi = require("swagger-ui-express");
+const swaggerDocument = require("./swagger.json");
 require("dotenv").config();
 // @MISC
 
@@ -94,6 +96,7 @@ const oracleApi = require("./api/oracle");
 const roundsApi = require("./api/rounds");
 app.use("/api/oracle", oracleApi);
 app.use("/api/rounds", roundsApi);
+app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // * MAIN ROUTE *
 app.get("/", async (req, res) => {

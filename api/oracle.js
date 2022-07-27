@@ -146,6 +146,7 @@ router.get("/one/:roundId", async (req, res) => {
 router.get("/avg", async (req, res) => {
   try {
     const arr = [];
+    // TODO pass as params
     for (let i = 185; i < 279; i++) {
       const roundId = "#" + i;
       const oracles = await getRoundOracle(roundId);
