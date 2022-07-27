@@ -96,17 +96,9 @@ const oracleApi = require("./api/oracle");
 const roundsApi = require("./api/rounds");
 app.use("/api/oracle", oracleApi);
 app.use("/api/rounds", roundsApi);
-app.use("/api-docs", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // * MAIN ROUTE *
-app.get("/", async (req, res) => {
-  try {
-    return res.status(200).send("OK");
-  } catch (err) {
-    console.log("HOME ROUTE ERROR:", err, req.headers, req.ipAddress);
-    return res.status(200).send("404");
-  }
-});
+app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 let port = process.env.PORT;
 app.listen(port, () => console.log(`Listening on port ${port}...`));
