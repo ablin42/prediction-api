@@ -61,7 +61,6 @@ app.use(function (req, res, next) {
   const allowedOrigins = [
     "https://pcsdata.herokuapp.com",
     "http://localhost:3000",
-    "https://cucksistants.herokuapp.com",
     "http://127.0.0.1:5500",
     "https://bestbetsbot.herokuapp.com",
     "https://www.bullvsbear.pro",
@@ -97,8 +96,12 @@ const roundsApi = require("./api/rounds");
 app.use("/api/oracle", oracleApi);
 app.use("/api/rounds", roundsApi);
 
+const options = {
+  customCss: ".swagger-ui .topbar { display: none }",
+};
+
 // * MAIN ROUTE *
-app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
+app.use("/", swaggerUi.serve, swaggerUi.setup(swaggerDocument, options));
 
 let port = process.env.PORT;
 app.listen(port, () => console.log(`Listening on port ${port}...`));

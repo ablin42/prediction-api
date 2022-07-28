@@ -345,7 +345,6 @@ router.get("/winstreak", async (req, res) => {
 });
 
 // * GET AVERAGE WINSTREAK *
-// ? @PARAM: "roundId" => Round ID
 router.get("/winstreak/average", async (req, res) => {
   try {
     const lastRound = await getLastRound();

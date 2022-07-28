@@ -3,7 +3,7 @@
   "info": {
     "version": "2.0.0",
     "title": "Prediction API",
-    "description": "API to handle data scraped from pancakeswap prediction",
+    "description": "API to handle data scraped from https://pancakeswap.finance/prediction prediction",
     "license": {
       "name": "MIT",
       "url": "https://opensource.org/licenses/MIT"
@@ -14,11 +14,11 @@
   "tags": [
     {
       "name": "Oracles",
-      "description": "API to query Oracle data"
+      "description": "Queries Oracles Data"
     },
     {
       "name": "Rounds",
-      "description": "API to query Round data"
+      "description": "Queries Rounds Data"
     }
   ],
   "schemes": ["http"],
@@ -31,9 +31,12 @@
         "summary": "Get all Oracles",
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Array containing all Oracles, ever",
             "schema": {
-              "$ref": "#/definitions/Oracle"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Oracle"
+              }
             }
           }
         }
@@ -45,9 +48,12 @@
         "summary": "Get current round Oracles",
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Array containing all Oracles for specified round",
             "schema": {
-              "$ref": "#/definitions/Oracle"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Oracle"
+              }
             }
           }
         }
@@ -61,305 +67,291 @@
           "200": {
             "description": "OK",
             "schema": {
-              "$ref": "#/definitions/Oracle"
+              "$ref": "#/definitions/Timing"
             }
           }
         }
       }
     },
-    "/oracle/limit/:limit": {
+    "/oracle/limit/{limit}": {
       "get": {
         "tags": ["Oracles"],
-        "summary": "Get the last :limit Oracles",
+        "summary": "Get the last {limit} Oracles",
         "parameters": [
           {
             "name": "limit",
-            "in": "body",
+            "in": "path",
             "description": "Number of oracles to fetch",
-            "schema": {
-              "limit": "number"
-            }
+            "type": "integer",
+            "format": "int64"
           }
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Last {limit} Oracles",
             "schema": {
-              "$ref": "#/definitions/Oracle"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Oracle"
+              }
             }
           }
         }
       }
     },
-    "/oracle/one/:roundId": {
+    "/oracle/one/{roundId}": {
       "get": {
         "tags": ["Oracles"],
-        "summary": "Get :roundId Oracles",
+        "summary": "Get {roundId} Oracles",
         "parameters": [
           {
             "name": "roundId",
-            "in": "body",
-            "description": "Targeted round ID",
-            "schema": {
-              "roundId": "number"
-            }
+            "in": "path",
+            "description": "ID of the round Oracles to fetch",
+            "type": "integer",
+            "format": "int64"
           }
         ],
         "responses": {
           "200": {
-            "description": "OK",
+            "description": "Oracles for {roundId}",
             "schema": {
-              "$ref": "#/definitions/Oracle"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Oracle"
+              }
             }
           }
         }
       }
     },
-    "/round/one/:roundId": {
+    "/rounds/one/{roundId}": {
       "post": {
         "tags": ["Rounds"],
-        "description": "Create new user in system",
+        "summary": "Get {roundId} Round",
         "parameters": [
           {
-            "name": "user",
-            "in": "body",
-            "description": "User that we want to create",
-            "schema": {
-              "$ref": "#/definitions/Round"
-            }
+            "name": "roundId",
+            "in": "path",
+            "description": "ID of the round to fetch",
+            "type": "integer",
+            "format": "int64"
           }
         ],
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "New user is created",
+            "description": "Data for round with ID {roundId}",
             "schema": {
-              "$ref": "#/definitions/Round"
+              "$ref": "#/definitions/RoundNoHistory"
             }
           }
         }
       }
     },
-    "/round/winstreak/average": {
+    "/rounds/winstreak/average": {
       "post": {
         "tags": ["Rounds"],
-        "description": "Create new user in system",
-        "parameters": [
-          {
-            "name": "user",
-            "in": "body",
-            "description": "User that we want to create",
-            "schema": {
-              "$ref": "#/definitions/Round"
-            }
-          }
-        ],
+        "summary": "Get the average winstreak, counting from the first round to the last",
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "New user is created",
+            "description": "Average winstreak length",
             "schema": {
-              "$ref": "#/definitions/Round"
+              "$ref": "#/definitions/winstreakAvg"
             }
           }
         }
       }
     },
-    "/round/winstreak": {
+    "/rounds/winstreak": {
       "post": {
         "tags": ["Rounds"],
-        "description": "Create new user in system",
-        "parameters": [
-          {
-            "name": "user",
-            "in": "body",
-            "description": "User that we want to create",
-            "schema": {
-              "$ref": "#/definitions/Round"
-            }
-          }
-        ],
+        "summary": "Get the last winstreak",
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "New user is created",
+            "description": "Last winstreak length",
             "schema": {
-              "$ref": "#/definitions/Round"
+              "$ref": "#/definitions/winstreak"
             }
           }
         }
       }
     },
-    "/round/simulate/:roundId": {
+    "/rounds/simulate/{roundId}": {
       "post": {
         "tags": ["Rounds"],
-        "description": "Create new user in system",
+        "summary": "[Experimental] Get data used to simulate a round for a betting bot for predictions",
         "parameters": [
           {
-            "name": "user",
-            "in": "body",
-            "description": "User that we want to create",
-            "schema": {
-              "$ref": "#/definitions/Round"
-            }
+            "name": "roundId",
+            "in": "path",
+            "description": "ID of the round to fetch",
+            "type": "integer",
+            "format": "int64"
           }
         ],
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "New user is created",
+            "description": "Arbitrary data to simulate a round",
             "schema": {
-              "$ref": "#/definitions/Round"
+              "$ref": "#/definitions/RoundNoHistory"
             }
           }
         }
       }
     },
-    "/round/mediane": {
+    "/rounds/period/hourly/{startTimestamp}/{endTimestamp}/{grouped}": {
       "post": {
         "tags": ["Rounds"],
-        "description": "Create new user in system",
+        "summary": "Get Rounds in between timestamps, grouped by hour",
         "parameters": [
           {
-            "name": "user",
-            "in": "body",
-            "description": "User that we want to create",
-            "schema": {
-              "$ref": "#/definitions/Round"
-            }
+            "name": "startTimestamp",
+            "in": "path",
+            "description": "Timestamp to start filtering from",
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "endTimestamp",
+            "in": "path",
+            "description": "Timestamp to stop filtering from",
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "grouped",
+            "in": "path",
+            "description": "False by default, true groups the data by hour",
+            "type": "boolean"
           }
         ],
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "New user is created",
+            "description": "Array of Rounds data",
             "schema": {
-              "$ref": "#/definitions/Round"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RoundNoHistory"
+              }
             }
           }
         }
       }
     },
-    "/round/period/hourly/:startTimestamp/:endTimestamp/:grouped": {
+    "/rounds/period/{period}": {
       "post": {
         "tags": ["Rounds"],
-        "description": "Create new user in system",
+        "summary": "Get rounds within the given {period}",
         "parameters": [
           {
-            "name": "user",
-            "in": "body",
-            "description": "User that we want to create",
-            "schema": {
-              "$ref": "#/definitions/Round"
-            }
+            "name": "period",
+            "in": "path",
+            "description": "Period to filter from",
+            "type": "string",
+            "enum": [
+              "1H",
+              "2H",
+              "3H",
+              "4H",
+              "8H",
+              "12H",
+              "1D",
+              "3D",
+              "1W",
+              "1M",
+              "3M",
+              "6M"
+            ]
           }
         ],
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "New user is created",
+            "description": "Array of rounds data",
             "schema": {
-              "$ref": "#/definitions/Round"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RoundNoHistory"
+              }
             }
           }
         }
       }
     },
-    "/round/esperance/hourly/:startTimestamp/:endTimestamp/:grouped": {
+    "/rounds/{period}/history": {
       "post": {
         "tags": ["Rounds"],
-        "description": "Create new user in system",
+        "summary": "Get rounds within the given period, including history",
         "parameters": [
           {
-            "name": "user",
-            "in": "body",
-            "description": "User that we want to create",
-            "schema": {
-              "$ref": "#/definitions/Round"
-            }
+            "name": "period",
+            "in": "path",
+            "description": "Period to filter from",
+            "type": "string",
+            "enum": [
+              "1H",
+              "2H",
+              "3H",
+              "4H",
+              "8H",
+              "12H",
+              "1D",
+              "3D",
+              "1W",
+              "1M",
+              "3M",
+              "6M"
+            ]
           }
         ],
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "New user is created",
+            "description": "Array of rounds data including history",
             "schema": {
-              "$ref": "#/definitions/Round"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/Round"
+              }
             }
           }
         }
       }
     },
-    "/round/period/:period": {
+    "/rounds/timestamp/{startTimestamp}/{endTimestamp}": {
       "post": {
         "tags": ["Rounds"],
-        "description": "Create new user in system",
+        "summary": "Get rounds between timestamps",
         "parameters": [
           {
-            "name": "user",
-            "in": "body",
-            "description": "User that we want to create",
-            "schema": {
-              "$ref": "#/definitions/Round"
-            }
+            "name": "startTimestamp",
+            "in": "path",
+            "description": "Timestamp to start filtering from",
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "endTimestamp",
+            "in": "path",
+            "description": "Timestamp to stop filtering from",
+            "type": "integer",
+            "format": "int64"
           }
         ],
         "produces": ["application/json"],
         "responses": {
           "200": {
-            "description": "New user is created",
+            "description": "Array of rounds",
             "schema": {
-              "$ref": "#/definitions/Round"
-            }
-          }
-        }
-      }
-    },
-    "/round/period/history": {
-      "post": {
-        "tags": ["Rounds"],
-        "description": "Create new user in system",
-        "parameters": [
-          {
-            "name": "user",
-            "in": "body",
-            "description": "User that we want to create",
-            "schema": {
-              "$ref": "#/definitions/Round"
-            }
-          }
-        ],
-        "produces": ["application/json"],
-        "responses": {
-          "200": {
-            "description": "New user is created",
-            "schema": {
-              "$ref": "#/definitions/Round"
-            }
-          }
-        }
-      }
-    },
-    "/round/timestamp/:startTimestamp/:endTimestamp": {
-      "post": {
-        "tags": ["Rounds"],
-        "description": "Create new user in system",
-        "parameters": [
-          {
-            "name": "user",
-            "in": "body",
-            "description": "User that we want to create",
-            "schema": {
-              "$ref": "#/definitions/Round"
-            }
-          }
-        ],
-        "produces": ["application/json"],
-        "responses": {
-          "200": {
-            "description": "New user is created",
-            "schema": {
-              "$ref": "#/definitions/Round"
+              "type": "array",
+              "items": {
+                "$ref": "#/definitions/RoundNoHistory"
+              }
             }
           }
         }
@@ -370,7 +362,7 @@
   "definitions": {
     "Oracle": {
       "required": [
-        "_id",
+        "_oracleId",
         "roundId",
         "oraclePrice",
         "openPrice",
@@ -408,9 +400,20 @@
         }
       }
     },
+    "Timing": {
+      "required": ["oracle", "candleTiming"],
+      "properties": {
+        "oracle": {
+          "$ref": "#/definitions/Oracle"
+        },
+        "candleTiming": {
+          "type": "number"
+        }
+      }
+    },
     "Round": {
       "required": [
-        "_id",
+        "roundId",
         "roundId",
         "poolValue",
         "openPrice",
@@ -451,19 +454,97 @@
         "history": {
           "type": "array",
           "items": {
-            "type": "object",
-            "properties": {
-              "name": {
-                "type": "string"
-              },
-              "amount": {
-                "type": "number"
-              }
-            }
+            "$ref": "#/definitions/Oracle"
           }
         },
         "date": {
           "type": "number"
+        }
+      }
+    },
+    "RoundNoHistory": {
+      "required": [
+        "roundId",
+        "roundId",
+        "poolValue",
+        "openPrice",
+        "closePrice",
+        "diff",
+        "payoutUP",
+        "payoutDOWN",
+        "history",
+        "date"
+      ],
+      "properties": {
+        "_id": {
+          "type": "integer",
+          "uniqueItems": true
+        },
+        "roundId": {
+          "type": "string",
+          "uniqueItems": true
+        },
+        "poolValue": {
+          "type": "number"
+        },
+        "openPrice": {
+          "type": "number"
+        },
+        "closePrice": {
+          "type": "number"
+        },
+        "diff": {
+          "type": "number"
+        },
+        "payoutUP": {
+          "type": "number"
+        },
+        "payoutDOWN": {
+          "type": "number"
+        },
+        "date": {
+          "type": "number"
+        }
+      }
+    },
+    "winstreak": {
+      "required": ["winstreak"],
+      "properties": {
+        "winstreak": {
+          "type": "number"
+        }
+      }
+    },
+    "winstreakAvg": {
+      "required": [
+        "avgWinstreakUP",
+        "avgWinstreakDOWN",
+        "medUP",
+        "medDOWN",
+        "winstreakUP",
+        "winstreakDOWN"
+      ],
+      "properties": {
+        "winstreak": {
+          "type": "number"
+        },
+        "avgWinstreakUP": {
+          "type": "number"
+        },
+        "avgWinstreakDOWN": {
+          "type": "number"
+        },
+        "winstreakUP": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        "winstreakDOWN": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
         }
       }
     }
